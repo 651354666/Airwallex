@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import Header from 'components/Header/Header';
 import Footer from 'components/Footer/Footer';
 import Content from 'components/Content/Content';
-import Modal from 'components/Modal/Modal';
+const LazyModal = lazy(() => import('components/Modal/Modal'));
 
 class Home extends React.Component {
   constructor(props) {
@@ -34,7 +34,11 @@ class Home extends React.Component {
         <Content
           openModal={ this.openModal }
         />
-        { this.state.showModal && <Modal closeModal={this.closeModal} /> }
+        { this.state.showModal && (
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazyModal closeModal={this.closeModal} />
+          </Suspense>
+          ) }
       </div>
     )
   }
