@@ -12,7 +12,7 @@ function Content(props) {
           <span className="content__title__text">to enjoy every day.</span>
         </h1>
         <h2 className="content__subtitle">Be the first to know when we launch.</h2>
-        <div role="button" tabIndex={0} className="content__btn" onClick={() => {}} onKeyDown={openModal}>Request an invite</div>
+        <div role="button" tabIndex={0} className="content__btn" onClick={openModal} onKeyDown={() => {}}>Request an invite</div>
       </div>
     </div>
   );

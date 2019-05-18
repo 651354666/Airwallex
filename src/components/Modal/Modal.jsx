@@ -19,8 +19,8 @@ class Modal extends React.Component {
     };
 
     this.validations = {
-      fullName: /.+/,
-      email: /^[A-Za-z0-9]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+      vFullName: /.+/,
+      vEmail: /^[A-Za-z0-9]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
     };
 
     this.state = Object.assign({}, this.defaultState);
@@ -87,10 +87,13 @@ class Modal extends React.Component {
       });
   };
 
-  clickCloseModal = () => {
-    const { closeModal } = this.props;
-    this.setState(Object.assign({}, this.defaultState));
-    closeModal();
+  clickCloseModal = (e) => {
+    const { className } = e.target;
+    if (className === "modal" || className === "modal__close") {
+      const { closeModal } = this.props;
+      this.setState(Object.assign({}, this.defaultState));
+      closeModal();
+    }
   }
 
   render() {
@@ -107,7 +110,13 @@ class Modal extends React.Component {
     } = this.state;
 
     return (
-      <div className="modal">
+      <div
+        role="button"
+        tabIndex={-2}
+        className="modal"
+        onClick={this.clickCloseModal}
+        onKeyDown={() => {}}
+      >
         <div className="modal__content">
           <div className="modal__title">Request an invite</div>
           <div className="modal__dividor" />
@@ -117,9 +126,9 @@ class Modal extends React.Component {
               <div
                 role="button"
                 tabIndex={-1}
-                className="modal__submit"
-                onClick={() => {}}
-                onKeyDown={this.clickCloseModal}
+                className="modal__close"
+                onClick={this.clickCloseModal}
+                onKeyDown={() => {}}
               >
                 OK
               </div>
@@ -154,8 +163,8 @@ class Modal extends React.Component {
                 role="button"
                 tabIndex={0}
                 className={sending ? "modal__submit modal__submit--sending" : "modal__submit"}
-                onClick={() => {}}
-                onKeyDown={this.submit}
+                onClick={this.submit}
+                onKeyDown={() => {}}
               >
                 {sending ? "Sending" : "Send"}
               </div>
