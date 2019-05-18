@@ -1,25 +1,26 @@
 import React from "react";
-import axios from 'axios';
+import axios from "axios";
+import PropTypes from "prop-types";
 
 class Modal extends React.Component {
   constructor(props) {
     super(props);
 
     this.defaultState = {
-      fullName: '',
-      email: '',
-      cEmail: '',
+      fullName: "",
+      email: "",
+      cEmail: "",
       fullNameError: false,
       emailError: false,
       cEmailError: false,
       sending: false,
       error: null,
-      sent: false
+      sent: false,
     };
 
     this.validations = {
       fullName: /.+/,
-      email: /^[A-Za-z0-9]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+      email: /^[A-Za-z0-9]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
     };
 
     this.state = Object.assign({}, this.defaultState);
@@ -27,24 +28,25 @@ class Modal extends React.Component {
 
   fieldChange = (event) => {
     this.setState({
-      [event.target.name]: event.target.value
-    })
+      [event.target.name]: event.target.value,
+    });
   };
 
   submit = () => {
-    console.log('submit');
     let fullNameError = false;
     let emailError = false;
     let cEmailError = false;
-    if (!this.validations.fullName.test(this.state.fullName)) {
+    const { fullName, email, cEmail } = this.state;
+    const { vFullName, vEmail } = this.validations;
+    if (!vFullName.test(fullName)) {
       fullNameError = true;
     }
 
-    if (!this.validations.email.test(this.state.email)) {
+    if (!vEmail.test(email)) {
       emailError = true;
     }
 
-    if (!this.validations.email.test(this.state.cEmail) || (this.state.email != this.state.cEmail)) {
+    if (!vEmail.test(cEmail) || (email !== cEmail)) {
       cEmailError = true;
     }
 
@@ -52,88 +54,112 @@ class Modal extends React.Component {
       this.sendRequest();
     }
     this.setState({
-      fullNameError: fullNameError,
-      emailError: emailError,
-      cEmailError: cEmailError
+      fullNameError,
+      emailError,
+      cEmailError,
     });
   };
 
   sendRequest = () => {
     const self = this;
+    const { fullName, email } = this.state;
     this.setState({
       sending: true,
-      error: false
+      error: false,
     });
 
-    axios.post('https://l94wc2001h.execute-api.ap-southeast-2.amazonaws.com/prod/fake-auth', {
-      name: this.state.fullName,
-      email: this.state.email
+    axios.post("https://l94wc2001h.execute-api.ap-southeast-2.amazonaws.com/prod/fake-auth", {
+      name: fullName,
+      email,
     })
-    .then(function (res) {
-      self.setState({
-        sending: false,
-        sent: true,
-        error: false
+      .then(() => {
+        self.setState({
+          sending: false,
+          sent: true,
+          error: false,
+        });
+      })
+      .catch((error) => {
+        self.setState({
+          sending: false,
+          error: error.response.data.errorMessage || "Somethinkg went wrong, please try again later",
+        });
       });
-    })
-    .catch(function (error) {
-      console.log(error);
-      self.setState({
-        sending: false,
-        error: error.response.data.errorMessage || 'Somethinkg went wrong, please try again later'
-      });
-    });
   };
 
   clickCloseModal = () => {
+    const { closeModal } = this.props;
     this.setState(Object.assign({}, this.defaultState));
-    this.props.closeModal();
+    closeModal();
   }
 
   render() {
+    const {
+      sent,
+      fullNameError,
+      fullName,
+      emailError,
+      email,
+      cEmailError,
+      cEmail,
+      sending,
+      error,
+    } = this.state;
+
     return (
       <div className="modal">
         <div className="modal__content">
           <div className="modal__title">Request an invite</div>
-          <div className="modal__dividor"></div>
-          { this.state.sent? (
+          <div className="modal__dividor" />
+          { sent ? (
             <div className="modal__finish">
               <div className="modal__subtitle">You will be one of the first to experience Broccoli & Co. when we launch.</div>
-              <div className="modal__submit" onClick={this.clickCloseModal}>OK</div>
+              <div
+                role="button"
+                tabIndex={-1}
+                className="modal__submit"
+                onClick={() => {}}
+                onKeyDown={this.clickCloseModal}
+              >
+                OK
+              </div>
             </div>
           ) : (
             <div className="modal__form">
               <input
-                className={this.state.fullNameError? 'modal__input modal__input--error' : 'modal__input'} 
+                className={fullNameError ? "modal__input modal__input--error" : "modal__input"}
                 type="text"
                 name="fullName"
-                value={this.state.fullName}
+                value={fullName}
                 placeholder="Full name"
                 onChange={this.fieldChange}
               />
-              <input 
-                className={this.state.emailError? 'modal__input modal__input--error' : 'modal__input'} 
+              <input
+                className={emailError ? "modal__input modal__input--error" : "modal__input"}
                 type="text"
                 name="email"
-                value={this.state.email}
+                value={email}
                 placeholder="Email"
                 onChange={this.fieldChange}
               />
-              <input 
-                className={this.state.cEmailError? 'modal__input modal__input--error' : 'modal__input'} 
+              <input
+                className={cEmailError ? "modal__input modal__input--error" : "modal__input"}
                 type="text"
                 name="cEmail"
-                value={this.state.cEmail}
+                value={cEmail}
                 placeholder="Confirm email"
                 onChange={this.fieldChange}
               />
-              <div 
-                className={this.state.sending? 'modal__submit modal__submit--sending' : 'modal__submit'}
-                onClick={this.submit}
+              <div
+                role="button"
+                tabIndex={0}
+                className={sending ? "modal__submit modal__submit--sending" : "modal__submit"}
+                onClick={() => {}}
+                onKeyDown={this.submit}
               >
-                {this.state.sending? 'Sending' : 'Send'}
+                {sending ? "Sending" : "Send"}
               </div>
-              { this.state.error && <div className="modal__error">{ this.state.error }</div> }
+              { error && <div className="modal__error">{ error }</div> }
             </div>
           ) }
         </div>
@@ -141,5 +167,13 @@ class Modal extends React.Component {
     );
   }
 }
+
+Modal.defaultProps = {
+  closeModal: () => {},
+};
+
+Modal.propTypes = {
+  closeModal: PropTypes.func,
+};
 
 export default Modal;
